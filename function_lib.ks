@@ -58,7 +58,7 @@ FUNCTION GetApoapsis{ //prints old and new apo and if moving in the right direct
     }
     wait 1.// 2.0
     clearscreen.
-    if runBumper = true or runV2 = true. { // decides if the bumper is active rocket
+    if runBumper = true or runV2 = true { // decides if the bumper is active rocket
         set oldApoapsis to ship:apoapsis * 0.98.
         DisplayApo().
         BCheckAltitude().
