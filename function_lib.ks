@@ -5,6 +5,10 @@ set oldApoapsis to ship:altitude + 1000.
 set mainChute to 4999. // adjust height for thes two vars, according to what you set the parachutes deployment height to.
 set drogueChute to 12000. //same as above
 set karminLine to 140000.
+// set northDir to 0.
+// set eastDir to 90.
+// set southDir to 180.
+// set westDir to 270.
 //set thrust to ship:availablethrust.
 //-------------Functions-------------------
 FUNCTION Launch{
@@ -38,9 +42,9 @@ FUNCTION CheckAltitude{
     } 
 }
 FUNCTION BCheckAltitude{
-    if ship:altitude < oldApoapsis {
+    if ship:altitude < oldApoapsis and ship:altitude < karminLine {
         GetApoapsis().
-    } else if ship:altitude > oldApoapsis and ship:altitude > karminLine {
+    } else if ship:altitude > oldApoapsis or ship:altitude > karminLine {
         JBumperSafeStage().
     } 
 }
@@ -79,13 +83,30 @@ FUNCTION FinalSafeStage{
         wait 5.0. 
         stage.
     }
-}    
-FUNCTION JBumperSafeStage{
-    stage.
+} 
+FUNCTION Warning{
+    HUDTEXT("Warning: ABORT!", 5, 2, 15, red, true).
     
+    
+    
+}   
+FUNCTION JBumperSafeStage{
+     if ship:altitude < 20000 {
+        Warning().
+        toggle ag5. // kills main engine
+        wait until stage:ready.
+        stage.
+        DeployChute(drogueChute, mainChute).
+        print "ABORT! ABORT!".
+        //toggle ag3. wait 1.0. //starts Retro rockets
+        toggle ag4. 
+    } else {
+        stage. 
+        wait until stage:ready.
+        stage.
+        wait 3.
+        stage. 
+        FinalSafeStage().
+        DeployChute(drogueChute, mainChute).
+    }
 }
-
-
-
-
-
