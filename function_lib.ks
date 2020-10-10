@@ -119,7 +119,7 @@ FUNCTION JBumperSafeStage{ //exclusive to the Jumbo Bumper and Bumper. checks to
         FinalSafeStage().
         DeployChute(drogueChute, mainChute).
     } else {
-        print"ERROR: you should not see this!" // Need to write a better handler for multiple rockets but this will do for now.
+        print"ERROR: you should not see this!". // Need to write a better handler for multiple rockets but this will do for now.
     }
 }
 // TODO
