@@ -30,7 +30,8 @@ FUNCTION CheckMotion{ // check to see if moving in the right direction or not
     local startingAltitude to ship:altitude.
 
     if ship:altitude <= startingAltitude { wait 2.0. }
-    set runBumper to true.
+    set runBumper to false. // change to true if using Bumper class
+    set runV2 to true. // change this back to false if using bumper class
     BCheckAltitude().
 }
 FUNCTION CheckAltitude{ // checks ships current alt against old apo 
@@ -57,7 +58,7 @@ FUNCTION GetApoapsis{ //prints old and new apo and if moving in the right direct
     }
     wait 1.// 2.0
     clearscreen.
-    if runBumper = true { // decides if the bumper is active rocket
+    if runBumper = true or runV2 = true. { // decides if the bumper is active rocket
         set oldApoapsis to ship:apoapsis * 0.98.
         DisplayApo().
         BCheckAltitude().
@@ -103,7 +104,7 @@ FUNCTION JBumperSafeStage{ //exclusive to the Jumbo Bumper and Bumper. checks to
         toggle ag4. //skips all other stages and seperates Avionics package for retrieval
         // TODO 
         // can probally move ag4 in front of the call to deploy chute. need to test
-    } else { // this is for all cases that are nominal.
+    } else if runBumper = true { // this is for all cases that are nominal.
         stage. 
         wait until stage:ready.
         stage.
@@ -111,6 +112,14 @@ FUNCTION JBumperSafeStage{ //exclusive to the Jumbo Bumper and Bumper. checks to
         stage. 
         FinalSafeStage().
         DeployChute(drogueChute, mainChute).
+    } else if runV2 = true {
+        stage. 
+        wait until stage:ready.
+        stage.
+        FinalSafeStage().
+        DeployChute(drogueChute, mainChute).
+    } else {
+        print"ERROR: you should not see this!" // Need to write a better handler for multiple rockets but this will do for now.
     }
 }
 // TODO
