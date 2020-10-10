@@ -4,7 +4,7 @@
 set oldApoapsis to ship:altitude + 1000.
 set mainChute to 4999. // adjust height for thes two vars, according to what you set the parachutes deployment height to.
 set drogueChute to 12000. //same as above
-set karminLine to 140000.
+set karminLine to 100000.
 // set northDir to 0.
 // set eastDir to 90.
 // set southDir to 180.
