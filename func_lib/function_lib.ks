@@ -1,6 +1,7 @@
 // AUTHOR: Jake Henry(Blast)
 // function library
-//-----------------Variables--------------------
+
+//################  Variables  ################//
 set oldApoapsis to ship:altitude + 1000.
 set mainChute to 4999. // adjust height for thes two vars, according to what you set the parachutes deployment height to.
 set drogueChute to 12000. //same as above
@@ -10,7 +11,8 @@ set karminLine to 100000.
 // set southDir to 180.
 // set westDir to 270.
 //set thrust to ship:availablethrust.
-//-------------Functions-------------------
+
+//################  Functions  ################//
 FUNCTION Launch{ // launches WAC Corporal and Aerobeee type sounding rockets that neeed timed stages.
     wait 1.0.
     PRINT "TAKEOFF!".
@@ -121,5 +123,23 @@ FUNCTION JBumperSafeStage{ //exclusive to the Jumbo Bumper and Bumper. checks to
     } else {
         print"ERROR: you should not see this!". // Need to write a better handler for multiple rockets but this will do for now.
     }
+    
 }
-// TODO
+//################  BOOT FUNCTIONS  #################//
+FUNCTION Warning{
+        HUDTEXT("Warning: CHECK STAGING!", 5, 2, 15, red, true).
+        WAIT 3.0.
+        CLEARSCREEN.
+}
+FUNCTION Activate {
+    HUDTEXT("Press y to boot local script or press n to abort launch.", 5, 2, 15, yellow, true).
+    IF inputText = terminal:input:"y" {
+        PRINT "it works!". //DEBUG, this needs to go away
+    }ELSE{
+        PRINT"You gay fucker". //DEBUG
+    }
+}
+FUNCTION Archive {
+    RUNPATH("0:/wac_corp.ks").
+}
+
