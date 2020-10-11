@@ -1,7 +1,7 @@
 // Bumper w/ WAC Corpoaral script 
 // Author: Jake Henry(Blast)
 //@lazyGlobal off.
-runoncepath("0:/function_lib").
+runoncepath("0:/func_lib/function_lib").
 //-----------------Variables--------------------
 Main().
 

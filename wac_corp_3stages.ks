@@ -2,7 +2,7 @@
 Main().
 //Variables
 //Functions
-FUNCTION Launch{
+FUNCTION WacLaunch{
     CLEARSCREEN.
     SET count TO 10.
         UNTIL count < 1 {
@@ -20,5 +20,5 @@ FUNCTION Launch{
 //Main
 FUNCTION Main{
     SET SHIP:CONTROL:PILOTMAINTHROTTLE TO 1.0.
-    LAUNCH().
+   WacLAUNCH().
 }

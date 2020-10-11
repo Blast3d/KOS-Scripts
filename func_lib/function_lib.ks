@@ -126,7 +126,7 @@ FUNCTION JBumperSafeStage{ //exclusive to the Jumbo Bumper and Bumper. checks to
     
 }
 //################  BOOT FUNCTIONS  #################//
-FUNCTION Warning{
+FUNCTION BootWarning{
         HUDTEXT("Warning: CHECK STAGING!", 5, 2, 15, red, true).
         WAIT 3.0.
         CLEARSCREEN.
