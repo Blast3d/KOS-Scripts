@@ -28,12 +28,16 @@ FUNCTION BumperLaunch{
     wait 3.5. stage. // need to fix otherwise 3.8 for Bumper with the WAC Corp.
     CheckMotion().
 }
+FUNCTION checkConnection{
+    if CONTROLCONNECTION = false {DeployChute().}
+}
 FUNCTION CheckMotion{ // check to see if moving in the right direction or not
     local startingAltitude to ship:altitude.
 
     if ship:altitude <= startingAltitude { wait 2.0. }
-    set runBumper to false. // change to true if using Bumper class
-    set runV2 to true. // change this back to false if using bumper class
+    //set runBumper to true. // change to true if using Bumper class
+    //set runV2 to true. // change this back to false if using bumper class
+    set jupiterA to true.
     BCheckAltitude().
 }
 FUNCTION CheckAltitude{ // checks ships current alt against old apo 
@@ -51,6 +55,27 @@ FUNCTION BCheckAltitude{ //bumper and Jbumper exclusive. checks ship altittude a
         JBumperSafeStage().
     } 
 }
+FUNCTION JupiterAStage{
+    if ship:altitude < oldApoapsis and ship:altitude < karminLine {
+        GetApoapsis().
+    } else if ship:altitude > oldApoapsis or ship:altitude > karminLine {
+        wait until stage:ready.
+        stage.
+        wait until stage:ready.
+        stage.
+        wait until stage:ready.
+        stage.
+        if ship:altitude < 20000 {
+            Warning().
+            toggle ag5. // kills main engine and no longer need retro rockets on the smaller stage
+            wait until stage:ready.
+            stage.
+            DeployChute(drogueChute, mainChute).
+            print "ABORT! ABORT!".
+            toggle ag4. //skips all other stages and seperates Avionics package for retrieval
+        }
+    } 
+}
 FUNCTION GetApoapsis{ //prints old and new apo and if moving in the right direction sets the old apo 
                     //to the new apo causing 98%(90% if a faster moving rocket like a wac or aerobee )
                     // difference in actual apoapsis so that the old apo is always trailing the actual apo. when rocket is higher than old apo then it moves on
@@ -60,18 +85,27 @@ FUNCTION GetApoapsis{ //prints old and new apo and if moving in the right direct
     }
     wait 1.// 2.0
     clearscreen.
-    if runBumper = true or runV2 = true { // decides if the bumper is active rocket
-        set oldApoapsis to ship:apoapsis * 0.98.
-        DisplayApo().
-        BCheckAltitude().
-    } else {
-        set oldApoapsis to ship:apoapsis * 0.90.
-    
-        DisplayApo().
-        CheckAltitude().
+
+    FUNCTION ShipClassCheck{
+        if runBumper = true or runV2 = true { // decides if the bumper is active rocket
+            set oldApoapsis to ship:apoapsis * 0.98.
+            DisplayApo().
+            BCheckAltitude().
+        }else if jupiterA = true {
+            set oldApoapsis to ship:apoapsis * 0.98.
+            DisplayApo().
+            JupiterAStage().
+        
+        } else {
+            set oldApoapsis to ship:apoapsis * 0.90.
+        
+            DisplayApo().
+            CheckAltitude().
+        }
     }
-       
+    ShipClassCheck().
 }
+
 
 FUNCTION DeployChute{ //Deploys parachutes and takes two parameters for realchute settings done in action groups for realchute.
     parameter drogueDeployHeight.
@@ -83,11 +117,18 @@ FUNCTION DeployChute{ //Deploys parachutes and takes two parameters for realchut
     toggle ag2. print" main parachute deployed". // ag2 = Main chute.
 }  
 FUNCTION FinalSafeStage{ //  this seperates nose cone and Avionics in atmosphere (note probably don't need to wait and can lower the alt to 55 or so, also deterined based on rocket )
-     when ship:altitude < 65000 then {
-        print "stage". 
-        wait 5.0. 
-        stage.
+    if jupiterA = true {
+        when ship:altitude < 10000 then { 
+            wait until stage:ready.
+            stage.
+        }
+    } else {
+        when ship:altitude < 60000 then { 
+            wait until stage:ready. 
+            stage.
+         }
     }
+   
 } 
 FUNCTION Warning{ // creates an alert on the main screen to notify that something went wrong if terminal not open
     HUDTEXT("Warning: ABORT!", 5, 2, 15, red, true).
@@ -117,7 +158,6 @@ FUNCTION JBumperSafeStage{ //exclusive to the Jumbo Bumper and Bumper. checks to
     } else if runV2 = true {
         stage. 
         wait until stage:ready.
-        stage.
         FinalSafeStage().
         DeployChute(drogueChute, mainChute).
     } else {
@@ -132,6 +172,7 @@ FUNCTION BootWarning{
         CLEARSCREEN.
 }
 FUNCTION Activate {
+    local inputText TO terminal:input:getchar().
     HUDTEXT("Press y to boot local script or press n to abort launch.", 5, 2, 15, yellow, true).
     IF inputText = terminal:input:"y" {
         PRINT "it works!". //DEBUG, this needs to go away

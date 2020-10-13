@@ -2,8 +2,9 @@
 // Author: Jake Henry(Blast)
 //@lazyGlobal off.
 runoncepath("0:/func_lib/function_lib").
-//-----------------Variables--------------------
 Main().
+//-----------------Variables--------------------
+
 
 //-------------Functions-------------------
 
@@ -12,7 +13,7 @@ Main().
 
 
 //-------------------Main-------------------------
-FUNCTION Main{
+local FUNCTION Main{
     set SHIP:CONTROL:PILOTMAINTHROTTLE TO 1.0.
     BumperLaunch().
 }
