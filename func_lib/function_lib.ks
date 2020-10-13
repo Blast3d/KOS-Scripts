@@ -35,10 +35,12 @@ FUNCTION CheckMotion{ // check to see if moving in the right direction or not
     local startingAltitude to ship:altitude.
 
     if ship:altitude <= startingAltitude { wait 2.0. }
-    //set runBumper to true. // change to true if using Bumper class
-    //set runV2 to true. // change this back to false if using bumper class
+    set runBumper to false. // change to true if using Bumper class
+    set runV2 to false. // change this back to false if using bumper class
     set jupiterA to true.
     BCheckAltitude().
+    //TODO:
+    //create a function to check for each ships status so as to not have to change Bool for each ship when runningh a new type
 }
 FUNCTION CheckAltitude{ // checks ships current alt against old apo 
     if ship:altitude < oldApoapsis {
@@ -52,7 +54,7 @@ FUNCTION BCheckAltitude{ //bumper and Jbumper exclusive. checks ship altittude a
     if ship:altitude < oldApoapsis and ship:altitude < karminLine {
         GetApoapsis().
     } else if ship:altitude > oldApoapsis or ship:altitude > karminLine {
-        JBumperSafeStage().
+        V2ClassCheck().
     } 
 }
 FUNCTION JupiterAStage{
@@ -129,15 +131,9 @@ FUNCTION FinalSafeStage{ //  this seperates nose cone and Avionics in atmosphere
          }
     }
    
-} 
-FUNCTION Warning{ // creates an alert on the main screen to notify that something went wrong if terminal not open
-    HUDTEXT("Warning: ABORT!", 5, 2, 15, red, true).
-    //TODO: 
-    // need to make letters easier to see, too small
-}   
-FUNCTION JBumperSafeStage{ //exclusive to the Jumbo Bumper and Bumper. checks to see if ship alt is higher than the old apo below too soon or not.
-     if ship:altitude < 20000 {
-        Warning().
+}
+FUNCTION Abort{
+    Warning().
         toggle ag5. // kills main engine and no longer need retro rockets on the smaller stage
         wait until stage:ready.
         stage.
@@ -147,19 +143,34 @@ FUNCTION JBumperSafeStage{ //exclusive to the Jumbo Bumper and Bumper. checks to
         toggle ag4. //skips all other stages and seperates Avionics package for retrieval
         // TODO 
         // can probally move ag4 in front of the call to deploy chute. need to test
-    } else if runBumper = true { // this is for all cases that are nominal.
-        stage. 
+}
+FUNCTION Warning{ // creates an alert on the main screen to notify that something went wrong if terminal not open
+    HUDTEXT("Warning: ABORT!", 5, 2, 15, red, true).
+    //TODO: 
+    // need to make letters easier to see, too small
+}
+FUNCTION BumperStaging{
+    stage. 
         wait until stage:ready.
         stage.
         wait 3.
         stage. 
         FinalSafeStage().
         DeployChute(drogueChute, mainChute).
-    } else if runV2 = true {
-        stage. 
+}
+FUNCTION V2Staging{
+    stage. 
         wait until stage:ready.
         FinalSafeStage().
         DeployChute(drogueChute, mainChute).
+}   
+FUNCTION V2ClassCheck{ //exclusive to the Jumbo Bumper and Bumper. checks to see if ship alt is higher than the old apo below too soon or not.
+     if ship:altitude < 20000 {
+        Abort().
+    } else if runBumper = true { // this is for all cases that are nominal.
+        BumperStaging().
+    } else if runV2 = true {
+        V2Staging().
     } else {
         print"ERROR: you should not see this!". // Need to write a better handler for multiple rockets but this will do for now.
     }
