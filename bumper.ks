@@ -10,7 +10,7 @@ Main().
 
 
 //-------------------Main----------------------
-FUNCTION Main{
+local FUNCTION Main{
     set SHIP:CONTROL:PILOTMAINTHROTTLE TO 1.0.
     SafeStage().
     wait 3.8. stage.

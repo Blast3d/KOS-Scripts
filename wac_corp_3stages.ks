@@ -2,7 +2,7 @@
 Main().
 //Variables
 //Functions
-FUNCTION Launch{
+local FUNCTION WacLaunch{
     CLEARSCREEN.
     SET count TO 10.
         UNTIL count < 1 {
@@ -15,10 +15,10 @@ FUNCTION Launch{
     PRINT "TAKEOFF!".
     stage.
     wait 1.5. stage. clearScreen.
-    wait 0.6. stage.
+    //wait 0.6. stage.
 }
 //Main
-FUNCTION Main{
+ local FUNCTION Main{
     SET SHIP:CONTROL:PILOTMAINTHROTTLE TO 1.0.
-    LAUNCH().
+   WacLAUNCH().
 }

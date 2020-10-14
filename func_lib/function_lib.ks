@@ -21,6 +21,7 @@ FUNCTION Launch{ // launches WAC Corporal and Aerobeee type sounding rockets tha
     wait 2.4. stage.
     CheckAltitude().
 }
+
 FUNCTION BumperLaunch{
     wait 0.0.
     stage.
@@ -28,14 +29,22 @@ FUNCTION BumperLaunch{
     wait 3.5. stage. // need to fix otherwise 3.8 for Bumper with the WAC Corp.
     CheckMotion().
 }
+
+FUNCTION checkConnection{
+    if CONTROLCONNECTION = false {DeployChute().}
+}
 FUNCTION CheckMotion{ // check to see if moving in the right direction or not
     local startingAltitude to ship:altitude.
 
     if ship:altitude <= startingAltitude { wait 2.0. }
     set runBumper to false. // change to true if using Bumper class
-    set runV2 to true. // change this back to false if using bumper class
-    BCheckAltitude().
+    set runV2 to false. // change this back to false if using bumper class
+    set jupiterA to true.
+    JCheckAltitude().
+    //TODO:
+    //create a function to check for each ships status so as to not have to change Bool for each ship when runningh a new type
 }
+
 FUNCTION CheckAltitude{ // checks ships current alt against old apo 
     if ship:altitude < oldApoapsis {
         GetApoapsis().
@@ -48,9 +57,39 @@ FUNCTION BCheckAltitude{ //bumper and Jbumper exclusive. checks ship altittude a
     if ship:altitude < oldApoapsis and ship:altitude < karminLine {
         GetApoapsis().
     } else if ship:altitude > oldApoapsis or ship:altitude > karminLine {
-        JBumperSafeStage().
+        V2ClassCheck().
     } 
 }
+
+FUNCTION JFinalStage{
+    wait until ship:altitude < 10000. 
+        stage. 
+    DeployChute(drogueChute, mainChute).
+}
+FUNCTION JStaging{
+        wait until stage:ready.
+        stage.
+        wait until stage:ready.
+        stage. 
+        wait until stage:ready.
+        stage.
+    }
+FUNCTION JCheckAltitude{ //Jupiter exclusive. checks ship altittude against old apo and karmin line to verify if things are working.
+    if ship:altitude < oldApoapsis and ship:altitude < karminLine {
+        GetApoapsis().
+    } else if ship:altitude > oldApoapsis or ship:altitude > karminLine {
+        JStaging().
+        SateliteDeployment().
+    } 
+}
+
+FUNCTION SateliteDeployment{
+    wait until ship:availablethrust < 0.01. 
+        stage.
+        JFinalStage().      
+    
+}
+
 FUNCTION GetApoapsis{ //prints old and new apo and if moving in the right direction sets the old apo 
                     //to the new apo causing 98%(90% if a faster moving rocket like a wac or aerobee )
                     // difference in actual apoapsis so that the old apo is always trailing the actual apo. when rocket is higher than old apo then it moves on
@@ -60,17 +99,25 @@ FUNCTION GetApoapsis{ //prints old and new apo and if moving in the right direct
     }
     wait 1.// 2.0
     clearscreen.
-    if runBumper = true or runV2 = true { // decides if the bumper is active rocket
-        set oldApoapsis to ship:apoapsis * 0.98.
-        DisplayApo().
-        BCheckAltitude().
-    } else {
-        set oldApoapsis to ship:apoapsis * 0.90.
-    
-        DisplayApo().
-        CheckAltitude().
+
+    FUNCTION ShipClassCheck{
+        if runBumper = true or runV2 = true { // decides if the bumper is active rocket
+            set oldApoapsis to ship:apoapsis * 0.98.
+            DisplayApo().
+            BCheckAltitude().
+        }else if jupiterA = true {
+            set oldApoapsis to ship:apoapsis * 0.98.
+            DisplayApo().
+            JCheckAltitude().
+        
+        } else {
+            set oldApoapsis to ship:apoapsis * 0.90.
+        
+            DisplayApo().
+            CheckAltitude().
+        }
     }
-       
+    ShipClassCheck().
 }
 
 FUNCTION DeployChute{ //Deploys parachutes and takes two parameters for realchute settings done in action groups for realchute.
@@ -81,22 +128,18 @@ FUNCTION DeployChute{ //Deploys parachutes and takes two parameters for realchut
     wait until ship:altitude < mainDeployHeight.
     clearScreen.
     toggle ag2. print" main parachute deployed". // ag2 = Main chute.
-}  
+} 
+
 FUNCTION FinalSafeStage{ //  this seperates nose cone and Avionics in atmosphere (note probably don't need to wait and can lower the alt to 55 or so, also deterined based on rocket )
-     when ship:altitude < 65000 then {
-        print "stage". 
-        wait 5.0. 
+    when ship:altitude < 60000 then { 
+        wait until stage:ready. 
         stage.
     }
-} 
-FUNCTION Warning{ // creates an alert on the main screen to notify that something went wrong if terminal not open
-    HUDTEXT("Warning: ABORT!", 5, 2, 15, red, true).
-    //TODO: 
-    // need to make letters easier to see, too small
-}   
-FUNCTION JBumperSafeStage{ //exclusive to the Jumbo Bumper and Bumper. checks to see if ship alt is higher than the old apo below too soon or not.
-     if ship:altitude < 20000 {
-        Warning().
+   
+}
+
+FUNCTION Abort{
+    Warning().
         toggle ag5. // kills main engine and no longer need retro rockets on the smaller stage
         wait until stage:ready.
         stage.
@@ -106,32 +149,52 @@ FUNCTION JBumperSafeStage{ //exclusive to the Jumbo Bumper and Bumper. checks to
         toggle ag4. //skips all other stages and seperates Avionics package for retrieval
         // TODO 
         // can probally move ag4 in front of the call to deploy chute. need to test
-    } else if runBumper = true { // this is for all cases that are nominal.
-        stage. 
+}
+FUNCTION Warning{ // creates an alert on the main screen to notify that something went wrong if terminal not open
+    HUDTEXT("Warning: ABORT!", 5, 2, 15, red, true).
+    //TODO: 
+    // need to make letters easier to see, too small
+}
+
+FUNCTION BumperStaging{
+    stage. 
         wait until stage:ready.
         stage.
         wait 3.
         stage. 
         FinalSafeStage().
         DeployChute(drogueChute, mainChute).
-    } else if runV2 = true {
-        stage. 
+}
+
+FUNCTION V2Staging{
+    stage. 
         wait until stage:ready.
-        stage.
         FinalSafeStage().
         DeployChute(drogueChute, mainChute).
+}  
+
+FUNCTION V2ClassCheck{ //exclusive to the V2Class. checks to see if ship alt is higher than the old apo below too soon or not.
+     if ship:altitude < 20000 {
+        Abort().
+    } else if runBumper = true { // this is for all cases that are nominal.
+        BumperStaging().
+    } else if runV2 = true {
+        V2Staging().
     } else {
         print"ERROR: you should not see this!". // Need to write a better handler for multiple rockets but this will do for now.
     }
     
 }
+
 //################  BOOT FUNCTIONS  #################//
-FUNCTION Warning{
+FUNCTION BootWarning{
         HUDTEXT("Warning: CHECK STAGING!", 5, 2, 15, red, true).
         WAIT 3.0.
         CLEARSCREEN.
 }
+
 FUNCTION Activate {
+    local inputText TO terminal:input:getchar().
     HUDTEXT("Press y to boot local script or press n to abort launch.", 5, 2, 15, yellow, true).
     IF inputText = terminal:input:"y" {
         PRINT "it works!". //DEBUG, this needs to go away
@@ -139,6 +202,7 @@ FUNCTION Activate {
         PRINT"You gay fucker". //DEBUG
     }
 }
+
 FUNCTION Archive {
     RUNPATH("0:/wac_corp.ks").
 }

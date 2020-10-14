@@ -8,6 +8,6 @@ SET inputText TO terminal:input:getchar().
 FUNCTION MainBoot {
     Warning().
     Activate().
-    //Archive(). Handled in SimpleBoot.ks for now
+    Archive().
 
 }
