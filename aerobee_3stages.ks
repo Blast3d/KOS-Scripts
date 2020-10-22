@@ -1,53 +1,27 @@
 // 3 stage Aerobee launch script 
+// the directive below although commented is used with the KOS extension for VScode and is used by the extension to include <filename>. DO not uncomment it or it breaks.
+//------------- Special Directive-------------//
+// #include func_lib.ks
+//--------------------------------------------//
 //-----------------Variables--------------------
 set oldApoapsis to ship:altitude + 1000.
 set mainChute to 4999. // adjust height for thes two vars, according to what you set the parachutes deployment height to.
 set drogueChute to 12000. //same as above
+set stageDone to false.
 //set thrust to ship:availablethrust.
 Main().
 
 //-------------Functions-------------------
 FUNCTION Launch{
     wait 1.0.
-    PRINT "TAKEOFF!".
-    stage.
-    wait 1.5. stage. clearScreen.
-    wait 2.4. stage.
+    stage. 
+    wait 1.6. stage.
+    // stage.
+    // wait 0.8. stage.
     CheckAltitude().
 }
-FUNCTION CheckAltitude{
-    if ship:altitude < oldApoapsis {
-        GetApoapsis().
-    } else if ship:altitude > oldApoapsis {
-        FinalSafeStage().
-        DeployChute(drogueChute, mainChute). // param 1 = height for Realchute Drogue deploy that you set in the action group menu. param 2 is the height for the main chute.
-    } 
-}
-FUNCTION GetApoapsis{
-    wait 2.0.
-    clearscreen.
-    set oldApoapsis to ship:apoapsis * 0.90.
-    print"old Apoapsis " + oldApoapsis.
-    print"new Apoapsis " + apoapsis.
-    CheckAltitude().
-}
-FUNCTION DeployChute{
-    parameter drogueDeployHeight.
-    parameter mainDeployHeight.
-    wait until ship:altitude < drogueDeployHeight. 
-    toggle ag1. print"Drogue parachute deployed".
-    wait until ship:altitude < mainDeployHeight.
-    clearScreen.
-    toggle ag2. print" main parachute deployed".
-}  
-FUNCTION FinalSafeStage{
-     when ship:altitude < 65000 then {
-        print "stage". 
-        wait 5.0. 
-        stage.
-    }
 
-}
+
 
 
 //-------------------Main-------------------------
