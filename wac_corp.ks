@@ -1,4 +1,5 @@
 //WAC Corporal Launch
+@lazyGlobal off.
 // the directive below although commented is used with the KOS extension for VScode and is used by the extension to include <filename>. DO NOT uncomment it or it breaks the code.
 //------------- Special Directive-------------//
 // #include func_lib.ks
@@ -6,7 +7,8 @@
 MAIN().
 //Variables
 //Functions
-local FUNCTION Launch{
+
+local FUNCTION LaunchWac{
 
     PRINT "TAKEOFF!".
     STAGE.
@@ -15,6 +17,6 @@ local FUNCTION Launch{
 //MAIN
 local FUNCTION MAIN{
     SET SHIP:CONTROL:PILOTMAINTHROTTLE TO 1.0.
-    LAUNCH().
+    LaunchWac().
 }
 //Todo

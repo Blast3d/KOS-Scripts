@@ -6,6 +6,7 @@
 //--------------------------------------------//
 //@lazyGlobal off.
 runoncepath("0:/function_lib").
+set runBumper to false. // change to true if using Bumper class
 //-----------------Variables------------------
 Main().
 

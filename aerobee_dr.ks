@@ -3,6 +3,7 @@
 //------------- Special Directive-------------//
 // #include func_lib.ks
 //--------------------------------------------//
+runoncepath("0:/func_lib").
 //-----------------Variables--------------------
 set oldApoapsis to 1000. //ship:altitude + ship:altitude * 0.05.
 

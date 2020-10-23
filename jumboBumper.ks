@@ -5,7 +5,9 @@
 //------------- Special Directive-------------//
 // #include func_lib.ks
 //--------------------------------------------//
-runoncepath("0:/func_lib/function_lib").
+runoncepath("0:/func_lib").
+set runBumper to true. // change to true if using Bumper class
+set jupiterA to false.
 Main().
 //-----------------Variables--------------------
 

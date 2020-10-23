@@ -1,3 +1,4 @@
 {
+    "archive": "SCRIPT",
     "bodies": ["Ceres", "Earth", "Jupiter", "Mars", "Mercury", "Neptune", "Pluto", "Saturn","Sun" ,"Uranus","Venus", "Vesta"]
 }

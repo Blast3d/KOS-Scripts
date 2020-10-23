@@ -37,9 +37,9 @@ FUNCTION CheckMotion{ // check to see if moving in the right direction or not
     local startingAltitude to ship:altitude.
 
     if ship:altitude <= startingAltitude { wait 2.0. }
-    set runBumper to false. // change to true if using Bumper class
+    
     set runV2 to false. // change this back to false if using bumper class
-    set jupiterA to true.
+    
     JCheckAltitude().
     //TODO:
     //create a function to check for each ships status so as to not have to change Bool for each ship when runningh a new type
