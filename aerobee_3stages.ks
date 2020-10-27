@@ -21,7 +21,40 @@ Main().
 
 //-------------Functions-------------------
  
-FUNCTION Launch{
+FUNCTION LaunchHi3Double{
+    wait 1.0.
+    stage. 
+    //wait 1.6. stage. //uncomment for regular tiny tim 3 stage aero Hi
+    wait 2.0. stage.
+    wait 0.8. stage. // aerojet if not comment out
+    when ResourceAmount("aeroBoostTank","ANILINE") < 3 then{ // aerojet if not comment out
+        stage.
+        wait 0.8.
+        stage.
+    }
+
+    FUNCTION ResourceAmount {
+        parameter tankTag,resName.
+        local taggedTank IS ship:partstagged(tankTag)[0].
+        for res IN taggedTank:resources {
+            if res:name = resName {
+                return res:AMOUNT.
+            }
+        }
+        return 0.
+    }
+    CheckAltitude().
+}
+FUNCTION LaunchHi3{
+    wait 1.0.
+    stage. 
+    wait 2.6. stage. 
+    wait 2.0. stage.
+    wait 0.6. stage.
+    CheckAltitude().
+}
+
+FUNCTION LaunchAero{
     wait 1.0.
     stage. 
     wait 1.6. stage.
@@ -34,5 +67,5 @@ FUNCTION Launch{
 //-------------------Main-------------------------
 FUNCTION Main{
     set SHIP:CONTROL:PILOTMAINTHROTTLE TO 1.0.
-    LAUNCH().
+    LaunchHi3Double().
 }

@@ -33,16 +33,33 @@ FUNCTION BumperLaunch{
 FUNCTION checkConnection{
     if CONTROLCONNECTION = false {DeployChute().}
 }
+
 FUNCTION CheckMotion{ // check to see if moving in the right direction or not
     local startingAltitude to ship:altitude.
 
     if ship:altitude <= startingAltitude { wait 2.0. }
     
     set runV2 to false. // change this back to false if using bumper class
+   
+    if runRedstone = true {
+        set oldApoapsis to ship:apoapsis.
+        AltitudeHold().
+        print "redstone is true".
+    } else if jupiterA = true {
+        JCheckAltitude().
+    } else {
+        CheckAltitude().
+    }
     
-    JCheckAltitude().
     //TODO:
     //create a function to check for each ships status so as to not have to change Bool for each ship when runningh a new type
+}
+
+FUNCTION AltitudeHold{
+    wait until ship:verticalspeed >= 200.
+    print" hold working".
+    set oldApoapsis to ship:apoapsis.
+    RCheckAltitude().
 }
 
 FUNCTION CheckAltitude{ // checks ships current alt against old apo 
@@ -53,6 +70,53 @@ FUNCTION CheckAltitude{ // checks ships current alt against old apo
         DeployChute(drogueChute, mainChute). // param 1 = height for Realchute Drogue deploy that you set in the action group menu. param 2 is the height for the main chute.
     } 
 }
+
+FUNCTION RCheckAltitude{ // checks ships current alt against old apo
+    if ship:altitude < oldApoapsis {
+        GetApoapsis().
+    } else if ship:altitude > oldApoapsis or ship:altitude > karminLine {
+        RStage().
+    } 
+}
+
+FUNCTION CheckResource {
+    when ResourceAmount("kickStage","HTP") < 3 then{ // aerojet if not comment out
+        stage.
+        wait 0.8.
+        stage.
+    }
+
+    FUNCTION ResourceAmount {
+        parameter tankTag,resName.
+        local taggedTank IS ship:partstagged(tankTag)[0].
+        for res IN taggedTank:resources {
+            if res:name = resName {
+                return res:AMOUNT.
+            }
+        }
+        return 0. 
+    }
+}
+
+FUNCTION RStage {
+    print "Staging ran!".
+    stage.
+    StageReady().
+    StageReady().
+    RCircularizeBurn().
+}
+
+FUNCTION RCircularizeBurn{
+    print" neeed to circularize here".
+    // TODO    
+    //Wait until Burntime = Burntime / 2.
+}
+
+FUNCTION StageReady {
+    wait until stage:ready.
+    stage.
+}
+
 FUNCTION BCheckAltitude{ //bumper and Jbumper exclusive. checks ship altittude against old apo and karmin line to verify if things are working.
     if ship:altitude < oldApoapsis and ship:altitude < karminLine {
         GetApoapsis().
@@ -66,6 +130,7 @@ FUNCTION JFinalStage{
         stage. 
     DeployChute(drogueChute, mainChute).
 }
+
 FUNCTION JStaging{
         wait until stage:ready.
         stage.
@@ -74,6 +139,7 @@ FUNCTION JStaging{
         wait until stage:ready.
         stage.
     }
+
 FUNCTION JCheckAltitude{ //Jupiter exclusive. checks ship altittude against old apo and karmin line to verify if things are working.
     if ship:altitude < oldApoapsis and ship:altitude < karminLine {
         GetApoapsis().
@@ -97,10 +163,11 @@ FUNCTION GetApoapsis{ //prints old and new apo and if moving in the right direct
         print"old Apoapsis " + oldApoapsis.
         print"new Apoapsis " + apoapsis.
     }
-    wait 1.// 2.0
+    wait 0.3.// 2.0
     clearscreen.
 
     FUNCTION ShipClassCheck{
+        print "classcheck ran!".
         if runBumper = true or runV2 = true { // decides if the bumper is active rocket
             set oldApoapsis to ship:apoapsis * 0.98.
             DisplayApo().
@@ -109,6 +176,10 @@ FUNCTION GetApoapsis{ //prints old and new apo and if moving in the right direct
             set oldApoapsis to ship:apoapsis * 0.98.
             DisplayApo().
             JCheckAltitude().
+        }else if runRedstone = true {
+            set oldApoapsis to ship:apoapsis * 0.98.
+            DisplayApo().
+            RCheckAltitude().
         
         } else {
             set oldApoapsis to ship:apoapsis * 0.90.
@@ -150,6 +221,7 @@ FUNCTION Abort{
         // TODO 
         // can probally move ag4 in front of the call to deploy chute. need to test
 }
+
 FUNCTION Warning{ // creates an alert on the main screen to notify that something went wrong if terminal not open
     HUDTEXT("Warning: ABORT!", 5, 2, 15, red, true).
     //TODO: 
