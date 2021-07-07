@@ -6,6 +6,7 @@ set oldApoapsis to ship:altitude + 1000.
 set mainChute to 4999. // adjust height for thes two vars, according to what you set the parachutes deployment height to.
 set drogueChute to 12000. //same as above
 set karminLine to 100000.
+set bumperFinalStage to 70000.
 // set northDir to 0.
 // set eastDir to 90.
 // set southDir to 180.
@@ -23,7 +24,7 @@ FUNCTION Launch{ // launches WAC Corporal and Aerobeee type sounding rockets tha
 }
 
 FUNCTION BumperLaunch{
-    wait 0.0.
+    wait 0.1.
     stage.
     PRINT "TAKEOFF!".
     wait 3.5. stage. // need to fix otherwise 3.8 for Bumper with the WAC Corp.
@@ -37,10 +38,10 @@ FUNCTION CheckMotion{ // check to see if moving in the right direction or not
     local startingAltitude to ship:altitude.
 
     if ship:altitude <= startingAltitude { wait 2.0. }
-    set runBumper to false. // change to true if using Bumper class
+    set runBumper to true. // change to true if using Bumper class
     set runV2 to false. // change this back to false if using bumper class
-    set jupiterA to true.
-    JCheckAltitude().
+    set jupiterA to false.
+    CheckAltitude(). //TODO: Create if else to change from Bcheck if bumper or checkAltitude if something else
     //TODO:
     //create a function to check for each ships status so as to not have to change Bool for each ship when runningh a new type
 }
@@ -49,14 +50,16 @@ FUNCTION CheckAltitude{ // checks ships current alt against old apo
     if ship:altitude < oldApoapsis {
         GetApoapsis().
     } else if ship:altitude > oldApoapsis {
+        clearscreen.
+        print"Vessel has reached Apoapsis".
         FinalSafeStage().
         DeployChute(drogueChute, mainChute). // param 1 = height for Realchute Drogue deploy that you set in the action group menu. param 2 is the height for the main chute.
     } 
 }
 FUNCTION BCheckAltitude{ //bumper and Jbumper exclusive. checks ship altittude against old apo and karmin line to verify if things are working.
-    if ship:altitude < oldApoapsis and ship:altitude < karminLine {
+    if ship:altitude < oldApoapsis and ship:altitude < bumperFinalStage {
         GetApoapsis().
-    } else if ship:altitude > oldApoapsis or ship:altitude > karminLine {
+    } else if ship:altitude > oldApoapsis or ship:altitude > bumperFinalStage { // if using new bumper set this var to bumperFinalStage else set to karminLine
         V2ClassCheck().
     } 
 }
@@ -128,7 +131,20 @@ FUNCTION DeployChute{ //Deploys parachutes and takes two parameters for realchut
     wait until ship:altitude < mainDeployHeight.
     clearScreen.
     toggle ag2. print" main parachute deployed". // ag2 = Main chute.
+    TerminateProgram().
 } 
+FUNCTION TerminateProgram{
+    clearscreen.
+    print"Staging complete, Standby for program termination". wait 2.0.
+    SET count TO 10.
+        UNTIL count < 1 {
+    SET count TO count - 1.
+    PRINT "Program Termination in " + count +" seconds".
+    WAIT 1.0.
+    CLEARSCREEN.
+    }
+    CORE:PART:GETMODULE("kOSProcessor"):DOEVENT("Close Terminal").
+}
 
 FUNCTION FinalSafeStage{ //  this seperates nose cone and Avionics in atmosphere (note probably don't need to wait and can lower the alt to 55 or so, also deterined based on rocket )
     when ship:altitude < 60000 then { 
