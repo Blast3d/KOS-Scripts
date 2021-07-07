@@ -16,7 +16,6 @@ local FUNCTION XasrLaunch{
     STAGE.
     Wait 3.2. STAGE.
     wait 0.8. STAGE.
-    CORE:PART:GETMODULE("kOSProcessor"):DOEVENT("Close Terminal").
 }
 //MAIN
 local FUNCTION MAIN{
