@@ -6,7 +6,7 @@ set oldApoapsis to ship:altitude + 1000.
 set mainChute to 4999. // adjust height for thes two vars, according to what you set the parachutes deployment height to.
 set drogueChute to 12000. //same as above
 set karminLine to 100000.
-set bumperFinalStage to 70000.
+set bumperFinalStage to 140000. // change to aprop height (70k is default)
 // set northDir to 0.
 // set eastDir to 90.
 // set southDir to 180.
@@ -24,6 +24,7 @@ FUNCTION Launch{ // launches WAC Corporal and Aerobeee type sounding rockets tha
 }
 
 FUNCTION BumperLaunch{
+    SAS ON. 
     wait 0.1.
     stage.
     PRINT "TAKEOFF!".
@@ -37,7 +38,7 @@ FUNCTION checkConnection{
 FUNCTION CheckMotion{ // check to see if moving in the right direction or not
     local startingAltitude to ship:altitude.
 
-    if ship:altitude <= startingAltitude { wait 2.0. }
+    if ship:altitude <= startingAltitude { wait 8.0. } // change for slower ships (default is 2.0)
     set runBumper to true. // change to true if using Bumper class
     set runV2 to false. // change this back to false if using bumper class
     set jupiterA to false.
@@ -173,9 +174,9 @@ FUNCTION Warning{ // creates an alert on the main screen to notify that somethin
 }
 
 FUNCTION BumperStaging{
-    stage. 
+    //stage. 
         wait until stage:ready.
-        stage.
+        //stage.
         wait 3.
         stage. 
         FinalSafeStage().
@@ -207,16 +208,6 @@ FUNCTION BootWarning{
         HUDTEXT("Warning: CHECK STAGING!", 5, 2, 15, red, true).
         WAIT 3.0.
         CLEARSCREEN.
-}
-
-FUNCTION Activate {
-    local inputText TO terminal:input:getchar().
-    HUDTEXT("Press y to boot local script or press n to abort launch.", 5, 2, 15, yellow, true).
-    IF inputText = terminal:input:"y" {
-        PRINT "it works!". //DEBUG, this needs to go away
-    }ELSE{
-        PRINT"You gay fucker". //DEBUG
-    }
 }
 
 FUNCTION Archive {
