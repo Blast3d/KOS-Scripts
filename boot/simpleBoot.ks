@@ -1,7 +1,7 @@
 
 CORE:PART:GETMODULE("kOSProcessor"):DOEVENT("Open Terminal").
 FUNCTION dir { // just a simple container for the runpath command to shorten when calling in multiple locations
-    RUNPATH("0:/bumper.ks").
+    RUNPATH("0:/ThorAbleStar.ks").
 }
 FUNCTION Activate { // activates the launch when certain keys pressed
     local inputText TO terminal:input:getchar().
@@ -31,4 +31,4 @@ wait 2.0.
 clearscreen.
 HUDTEXT("Press y to boot local script or press n to abort launch.", 5, 2, 15, yellow, true).
 Activate().
-//RUNPATH("0:/bumper.ks").
+

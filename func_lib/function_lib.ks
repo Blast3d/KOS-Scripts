@@ -6,6 +6,8 @@ set oldApoapsis to ship:altitude + 1000.
 set mainChute to 4999. // adjust height for thes two vars, according to what you set the parachutes deployment height to.
 set drogueChute to 12000. //same as above
 set karminLine to 100000.
+set Reentry to 140000.
+set ableStage to 140000.
 set bumperFinalStage to 140000. // change to aprop height (70k is default)
 // set northDir to 0.
 // set eastDir to 90.
@@ -22,6 +24,17 @@ FUNCTION Launch{ // launches WAC Corporal and Aerobeee type sounding rockets tha
     wait 2.4. stage.
     CheckAltitude().
 }
+FUNCTION AbleStarLaunch{
+
+    wait 0.1. stage.
+    PRINT "Ignition!".
+    wait 3.5. stage. // need to fix otherwise 3.8 for Bumper with the WAC Corp.
+    clearScreen.
+    wait until stage:ready. 
+    stage.
+    PRINT "Launch!".
+    CheckMotionAble().
+}
 
 FUNCTION BumperLaunch{
     SAS ON. 
@@ -35,6 +48,14 @@ FUNCTION BumperLaunch{
 FUNCTION checkConnection{
     if CONTROLCONNECTION = false {DeployChute().}
 }
+FUNCTION CheckMotionAble{ // check to see if moving in the right direction or not
+    local startingAltitude to ship:altitude.
+
+    if ship:altitude <= startingAltitude { wait 8.0. } // change for slower ships (default is 2.0)
+    CheckAltitudeAble(). //TODO: Create if else to change from Bcheck if bumper or checkAltitude if something else
+    //TODO:
+    //create a function to check for each ships status so as to not have to change Bool for each ship when runningh a new type
+}
 FUNCTION CheckMotion{ // check to see if moving in the right direction or not
     local startingAltitude to ship:altitude.
 
@@ -47,7 +68,7 @@ FUNCTION CheckMotion{ // check to see if moving in the right direction or not
     //create a function to check for each ships status so as to not have to change Bool for each ship when runningh a new type
 }
 
-FUNCTION CheckAltitude{ // checks ships current alt against old apo 
+FUNCTION CheckAltitude{ // checks ships current alt against old apo
     if ship:altitude < oldApoapsis {
         GetApoapsis().
     } else if ship:altitude > oldApoapsis {
@@ -56,6 +77,38 @@ FUNCTION CheckAltitude{ // checks ships current alt against old apo
         FinalSafeStage().
         DeployChute(drogueChute, mainChute). // param 1 = height for Realchute Drogue deploy that you set in the action group menu. param 2 is the height for the main chute.
     } 
+}
+function DoAbleStage {
+    Wait 30.
+    Stage.
+    RCS ON.
+    wait until stage:ready.
+    stage.
+    wait 3.5.
+
+    wait until Maxthrust = 0. Stage.
+    RCS off.
+    
+}
+FUNCTION CheckAltitudeAble{ // checks ships current alt against old apo 
+    if ship:altitude < oldApoapsis and ship:altitude >= AbleStage {
+        wait until Maxthrust = 0. Stage.
+        DoAbleStage().
+        wait until ship:altitude > ship:apoapsis.
+        clearscreen.
+        print"Vessel has reached old Apoapsis".
+        wait until ship:altitude < Reentry.
+        clearScreen.
+        RCS on.
+        toggle ag3. print"Rentry Program initialized". // gets ready for reentry
+        DeployChute(drogueChute, mainChute). // param 1 = height for Realchute Drogue deploy that you set in the action group menu. param 2 is the height for the main chute.
+    }
+    else if ship:altitude < oldApoapsis {
+        GetApoapsisAble().
+    } else {
+        print"error in Checkaltitude function".
+        abort().
+    }
 }
 FUNCTION BCheckAltitude{ //bumper and Jbumper exclusive. checks ship altittude against old apo and karmin line to verify if things are working.
     if ship:altitude < oldApoapsis and ship:altitude < bumperFinalStage {
@@ -93,13 +146,26 @@ FUNCTION SateliteDeployment{
         JFinalStage().      
     
 }
+FUNCTION GetApoapsisAble{ //prints old and new apo and if moving in the right direction sets the old apo 
+                    //to the new apo causing 98%(90% if a faster moving rocket like a wac or aerobee )
+                    // difference in actual apoapsis so that the old apo is always trailing the actual apo. when rocket is higher than old apo then it moves on
+    FUNCTION DisplayApo{
+        print"old Apoapsis " +  CEILING(oldApoapsis).
+        print"new Apoapsis " +  CEILING(apoapsis).
+    }
+    wait 4.// 2.0
+    clearscreen.
 
+    set oldApoapsis to ship:apoapsis * 0.98.
+            DisplayApo().
+            CheckAltitudeAble().
+}
 FUNCTION GetApoapsis{ //prints old and new apo and if moving in the right direction sets the old apo 
                     //to the new apo causing 98%(90% if a faster moving rocket like a wac or aerobee )
                     // difference in actual apoapsis so that the old apo is always trailing the actual apo. when rocket is higher than old apo then it moves on
     FUNCTION DisplayApo{
-        print"old Apoapsis " + oldApoapsis.
-        print"new Apoapsis " + apoapsis.
+        print"old Apoapsis " +  CEILING(oldApoapsis).
+        print"new Apoapsis " +  CEILING(apoapsis).
     }
     wait 1.// 2.0
     clearscreen.
@@ -109,11 +175,12 @@ FUNCTION GetApoapsis{ //prints old and new apo and if moving in the right direct
             set oldApoapsis to ship:apoapsis * 0.98.
             DisplayApo().
             BCheckAltitude().
+
         }else if jupiterA = true {
             set oldApoapsis to ship:apoapsis * 0.98.
             DisplayApo().
             JCheckAltitude().
-        
+
         } else {
             set oldApoapsis to ship:apoapsis * 0.90.
         
